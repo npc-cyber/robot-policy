@@ -63,7 +63,21 @@ $$
 - $\text{clip}(r_t(\theta), 1 - \epsilon, 1 + \epsilon)$：将 $r_t(\theta)$ 限制在 $[1 - \epsilon, 1 + \epsilon]$ 区间内。
 - $\mathbb{E}_t$：对所有时间步 $t$ 求期望（实践中是对一个 batch 的样本求平均）。也就是代码里面的 torch.max(pg1,pg2).mean()
 
-
 ## value func 价值函数
 
+一般价值函数可以取未来的奖励，也可以取网络预测的未来价值
 
+
+
+## 2. 价值函数的学习目标
+
+为了训练价值函数，我们通常使用 **均方误差（Mean Squared Error, MSE）** 作为损失函数：
+
+$$
+\mathcal{L}^V(\theta_v) = \mathbb{E}_t \left[ \frac{1}{2} \left( V(s_t; \theta_v) - \hat{V}_t^{\text{target}} \right)^2 \right]
+$$
+
+其中：
+- $V(s_t; \theta_v)$：Critic 网络输出的价值估计
+- $\hat{V}_t^{\text{target}}$：价值目标（target），通常使用 **n-step 回报** 或 **GAE 结合价值估计** 构造。
+- $\hat{V}_t^{\text{target}}$：代码里面用的是policy计算旧action的新value - (优势函数 + 旧value)
